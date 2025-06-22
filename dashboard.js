@@ -3,7 +3,6 @@ const { getDB } = require('./db');
 function dashboardHandler(req, res) {
     const db = getDB();
 
-    // Get user information
     db.get('SELECT email FROM users WHERE email = ?', [req.user.email], (err, row) => {
         if (err) {
             console.error('Database error:', err);

@@ -1,10 +1,8 @@
-// 1. Redirect to login if not logged in
 const token = localStorage.getItem('accessToken');
 if (!token) {
     window.location.href = '/login.html';
 }
 
-// 2. Fetch real cart items from backend
 let cart = [];
 let couponValue = 0;
 let selectedPayment = 'crypto';
@@ -42,10 +40,10 @@ async function fetchCart() {
             }
             renderCart();
             
-            // Fetch applied coupon info
+            
             await fetchAppliedCoupon();
             
-            // Get user email from JWT token
+            
             await fetchUserEmail();
         } else {
             cart = [];
@@ -67,10 +65,10 @@ function renderCart() {
         return;
     }
 
-    // Group items by offer_id and server_name combination
+    
     const groupedItems = {};
     cart.forEach(item => {
-        // Create a unique key combining offer_id and server
+        
         const groupKey = `${item.offer_id}_${item.server}`;
         if (!groupedItems[groupKey]) {
             groupedItems[groupKey] = {
@@ -86,7 +84,6 @@ function renderCart() {
         groupedItems[groupKey].items.push(item);
     });
 
-    // Render grouped items
     Object.keys(groupedItems).forEach(groupKey => {
         const group = groupedItems[groupKey];
         const totalQuantity = group.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -140,7 +137,6 @@ function attachCartEventListeners() {
 }
 
 function updateQty(groupKey, delta) {
-    // Find all items in this group
     const groupItems = cart.filter(item => `${item.offer_id}_${item.server}` === groupKey);
     if (groupItems.length === 0) return;
 
@@ -168,11 +164,9 @@ function updateQty(groupKey, delta) {
 
 async function updateQuantityInDatabase(groupKey, quantity) {
     try {
-        // Get all item IDs in this group
         const groupItems = cart.filter(item => `${item.offer_id}_${item.server}` === groupKey);
         const itemIds = groupItems.map(item => item.id);
 
-        // Update each item in the group
         for (const itemId of itemIds) {
             const response = await fetch(`/cart/item/${itemId}/quantity`, {
                 method: 'PUT',
@@ -199,11 +193,9 @@ async function updateQuantityInDatabase(groupKey, quantity) {
 
 async function removeItem(groupKey) {
     try {
-        // Get all item IDs in this group
         const groupItems = cart.filter(item => `${item.offer_id}_${item.server}` === groupKey);
         const itemIds = groupItems.map(item => item.id);
 
-        // Remove each item in the group
         for (const itemId of itemIds) {
             const response = await fetch(`/cart/item/${itemId}`, {
                 method: 'DELETE',

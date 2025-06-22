@@ -10,7 +10,6 @@ let db;
 
 function initDB() {
     return new Promise((resolve, reject) => {
-        // Check if database exists
         if (!fs.existsSync(dbPath)) {
             db = new sqlite3.Database(dbPath, (err) => {
                 if (err) {
@@ -19,7 +18,6 @@ function initDB() {
                     return;
                 }
 
-                // Create users table
                 const createTable = `
                 CREATE TABLE users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,12 +39,9 @@ function initDB() {
                         return;
                     }
                     logger.info('Users table created successfully');
-                    
-                    // Create default admin account
                     const adminEmail = 'admin@example.com';
                     const adminUsername = 'admin';
-                    const adminPassword = 'Admin@123'; // This is a secure password with uppercase, number, and special char
-                    
+                    const adminPassword = 'Admin@123';
                     bcrypt.hash(adminPassword, 10, (err, hashedPassword) => {
                         if (err) {
                             logger.error('Error hashing password:', err);

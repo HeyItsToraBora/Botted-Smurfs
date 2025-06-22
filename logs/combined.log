@@ -2994,3 +2994,83 @@
 {"level":"info","message":"Coupons fetched successfully by admin admin@example.com. Number of coupons: 0","timestamp":"2025-06-21T13:36:47.758Z"}
 {"level":"info","message":"Fetching all offers.","timestamp":"2025-06-21T13:36:47.766Z"}
 {"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-21T13:36:47.806Z"}
+{"level":"info","message":"Successfully connected to the offers database.","timestamp":"2025-06-22T06:28:50.446Z"}
+{"level":"info","message":"Offers table checked/created successfully.","timestamp":"2025-06-22T06:28:50.478Z"}
+{"level":"info","message":"All required columns already exist in offers table.","timestamp":"2025-06-22T06:28:50.492Z"}
+{"level":"info","message":"All databases initialized successfully","timestamp":"2025-06-22T06:28:50.536Z"}
+{"level":"info","message":"Server running on port 8080","timestamp":"2025-06-22T06:28:50.560Z"}
+{"expiredAt":"2025-06-21T15:24:56.000Z","level":"error","message":"Token verification error: jwt expired","name":"TokenExpiredError","stack":"TokenExpiredError: jwt expired\n    at C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\jsonwebtoken\\verify.js:190:21\n    at getSecret (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\jsonwebtoken\\verify.js:97:14)\n    at module.exports [as verify] (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\jsonwebtoken\\verify.js:101:10)\n    at C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\server.js:145:29\n    at Layer.handle [as handle_request] (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (C:\\Users\\youss\\OneDrive\\Desktop\\course\\Botted smurf\\node_modules\\express\\lib\\router\\index.js:346:12)","timestamp":"2025-06-22T06:29:15.267Z"}
+{"level":"info","message":"Successfully connected to the offers database.","timestamp":"2025-06-22T12:51:22.668Z"}
+{"level":"info","message":"Offers table checked/created successfully.","timestamp":"2025-06-22T12:51:22.685Z"}
+{"level":"info","message":"All required columns already exist in offers table.","timestamp":"2025-06-22T12:51:22.687Z"}
+{"level":"info","message":"All databases initialized successfully","timestamp":"2025-06-22T12:51:22.705Z"}
+{"level":"info","message":"Server running on port 8080","timestamp":"2025-06-22T12:51:22.760Z"}
+{"level":"info","message":"Login attempt for email: admin@example.com from IP: ::1","timestamp":"2025-06-22T12:51:25.205Z"}
+{"level":"info","message":"User logged in: admin (admin@example.com) from IP: ::1","timestamp":"2025-06-22T12:51:25.336Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T12:51:25.884Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T12:51:25.893Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T12:51:32.309Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T12:51:32.319Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T12:51:32.346Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T12:51:32.352Z"}
+{"level":"info","message":"Admin admin@example.com attempting to fetch all coupons.","timestamp":"2025-06-22T12:51:32.396Z"}
+{"level":"info","message":"Coupons fetched successfully by admin admin@example.com. Number of coupons: 0","timestamp":"2025-06-22T12:51:32.427Z"}
+{"level":"info","message":"Account status changed by admin admin@example.com: ID 10, New status: banned, Reason: scam","timestamp":"2025-06-22T13:03:28.748Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:03:45.449Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:03:45.560Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:13.246Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:13.381Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:28.316Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:28.440Z"}
+{"level":"info","message":"Successfully connected to the offers database.","timestamp":"2025-06-22T13:11:41.265Z"}
+{"level":"info","message":"Offers table checked/created successfully.","timestamp":"2025-06-22T13:11:41.275Z"}
+{"level":"info","message":"All required columns already exist in offers table.","timestamp":"2025-06-22T13:11:41.277Z"}
+{"level":"info","message":"All databases initialized successfully","timestamp":"2025-06-22T13:11:41.295Z"}
+{"level":"info","message":"Server running on port 8080","timestamp":"2025-06-22T13:11:41.319Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:44.401Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:44.505Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:45.595Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:45.707Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:45.844Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:45.945Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:46.048Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:46.158Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:52.435Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:52.584Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:52.588Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:11:52.750Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:52.793Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:11:52.888Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:16:12.348Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:16:12.473Z"}
+{"level":"info","message":"Successfully connected to the offers database.","timestamp":"2025-06-22T13:16:22.616Z"}
+{"level":"info","message":"Offers table checked/created successfully.","timestamp":"2025-06-22T13:16:22.624Z"}
+{"level":"info","message":"All required columns already exist in offers table.","timestamp":"2025-06-22T13:16:22.626Z"}
+{"level":"info","message":"All databases initialized successfully","timestamp":"2025-06-22T13:16:22.635Z"}
+{"level":"info","message":"Server running on port 8080","timestamp":"2025-06-22T13:16:22.677Z"}
+{"level":"info","message":"Login attempt for email: user@example.com from IP: ::1","timestamp":"2025-06-22T13:16:37.041Z"}
+{"level":"warn","message":"Login attempt for banned account: user@example.com","timestamp":"2025-06-22T13:16:37.142Z"}
+{"level":"info","message":"Login attempt for email: admin@example.com from IP: ::1","timestamp":"2025-06-22T13:17:49.868Z"}
+{"level":"info","message":"User logged in: admin (admin@example.com) from IP: ::1","timestamp":"2025-06-22T13:17:49.985Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:17:50.453Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:17:50.480Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:25:56.815Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:25:56.836Z"}
+{"level":"info","message":"Admin admin@example.com attempting to fetch all coupons.","timestamp":"2025-06-22T13:25:57.094Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:25:57.109Z"}
+{"level":"info","message":"Coupons fetched successfully by admin admin@example.com. Number of coupons: 0","timestamp":"2025-06-22T13:25:57.165Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:25:57.192Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:26:06.614Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:26:06.653Z"}
+{"level":"info","message":"Adding item to cart: {\"offerId\":1,\"offerType\":\"Botted\",\"offerName\":\"Premium 42k+ Be Botted accounts\",\"serverName\":\"NA\",\"quantity\":1,\"minQuantity\":1,\"availableQuantity\":1000,\"pricePerAccount\":2.1,\"gmailToBeSent\":null}","timestamp":"2025-06-22T13:26:09.578Z"}
+{"level":"info","message":"Adding item to cart: {\"offerId\":6,\"offerType\":\"Botted\",\"offerName\":\"Premium 32k+ Be Botted accounts\",\"serverName\":\"NA\",\"quantity\":1,\"minQuantity\":1,\"availableQuantity\":10000,\"pricePerAccount\":1.85,\"gmailToBeSent\":null}","timestamp":"2025-06-22T13:26:11.617Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:26:16.634Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:26:16.636Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:26:21.899Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:26:21.905Z"}
+{"level":"info","message":"Admin admin@example.com attempting to fetch all coupons.","timestamp":"2025-06-22T13:26:21.925Z"}
+{"level":"info","message":"Coupons fetched successfully by admin admin@example.com. Number of coupons: 0","timestamp":"2025-06-22T13:26:21.933Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:26:21.947Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:26:21.963Z"}
+{"level":"info","message":"Fetching all offers.","timestamp":"2025-06-22T13:26:25.709Z"}
+{"level":"info","message":"Offers fetched successfully. Number of offers: 6","timestamp":"2025-06-22T13:26:25.712Z"}

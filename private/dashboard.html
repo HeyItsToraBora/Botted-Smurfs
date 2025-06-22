@@ -2633,17 +2633,18 @@
                         return;
                     }
                     
-                    // Group items by server
-                    const serverGroups = {};
+                    // Group items by offer_id and server_name
+                    const itemGroups = {};
                     data.cart.items.forEach(item => {
-                        if (!serverGroups[item.server_name]) {
-                            serverGroups[item.server_name] = [];
+                        const groupKey = `${item.offer_id}_${item.server_name}`;
+                        if (!itemGroups[groupKey]) {
+                            itemGroups[groupKey] = [];
                         }
-                        serverGroups[item.server_name].push(item);
+                        itemGroups[groupKey].push(item);
                     });
                     
                     // Create cart items HTML
-                    Object.entries(serverGroups).forEach(([server, items]) => {
+                    Object.entries(itemGroups).forEach(([groupKey, items]) => {
                         const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
                         const totalPrice = items.reduce((sum, item) => sum + (item.quantity * item.price_per_account), 0);
                         const minQuantity = items[0].min_quantity || 1;
@@ -2656,7 +2657,7 @@
                             <div class="cart-item-details">
                                 <div class="cart-item-title">${items[0].offer_name}</div>
                                 <div class="cart-item-info">
-                                    <span class="cart-tag">${server}</span>
+                                    <span class="cart-tag">${items[0].server_name}</span>
                                     <span class="cart-tag">${totalQuantity}x</span>
                                     <span>$${totalPrice.toFixed(2)}</span>
                                 </div>
@@ -2664,7 +2665,7 @@
                                     <button class="btn-qty-dec" data-itemid="${itemId}" ${totalQuantity <= minQuantity ? 'disabled' : ''}>-</button>
                                     <span style="margin:0 0.5em;">${totalQuantity}</span>
                                     <button class="btn-qty-inc" data-itemid="${itemId}" ${totalQuantity >= availableQuantity ? 'disabled' : ''}>+</button>
-                                    <button class="btn-remove-cart-item" data-server="${server}">Remove</button>
+                                    <button class="btn-remove-cart-item" data-server="${items[0].server_name}">Remove</button>
                                 </div>
                             </div>
                         `;

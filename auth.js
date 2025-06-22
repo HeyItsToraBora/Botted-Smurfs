@@ -39,9 +39,16 @@ async function loginHandler(req, res) {
                 return res.status(401).json({ success: false, message: 'Invalid email or password' });
             }
 
+            if (row.status === 'banned') {
+                logger.warn(`Login attempt for banned account: ${email}`);
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'Your account has been banned.',
+                    banReason: row.ban_reason || 'No reason provided.'
+                });
+            }
+
             const tokens = generateTokens(row);
-            
-            // Set the access token cookie
             res.cookie('accessToken', tokens.accessToken, {
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
@@ -53,7 +60,7 @@ async function loginHandler(req, res) {
             res.json({ 
                 success: true, 
                 message: 'Login successful', 
-                accessToken: tokens.accessToken, // Include token in response for localStorage
+                accessToken: tokens.accessToken, 
                 refreshToken: tokens.refreshToken,
                 user: {
                     email: row.email,
@@ -73,7 +80,6 @@ const createAccountHandler = async (req, res) => {
     try {
         const { email, username, password, discordUsername, discordId, isAdmin } = req.body;
         
-        // Strict validation of required fields
         if (!email || !username || !password) {
             logger.warn(`Failed account creation attempt by admin ${req.user ? req.user.email : 'N/A'} - Missing required fields.`);
             return res.status(400).json({ 
@@ -82,12 +88,10 @@ const createAccountHandler = async (req, res) => {
             });
         }
 
-        // Debug logging for request body
         console.log('Full request body:', req.body);
         console.log('Received isAdmin value:', isAdmin);
         console.log('Type of received isAdmin:', typeof isAdmin);
         
-        // STRICT type checking and conversion
         let isAdminValue;
         if (isAdmin === 1 || isAdmin === '1' || isAdmin === true) {
             isAdminValue = 1;
@@ -100,10 +104,8 @@ const createAccountHandler = async (req, res) => {
         
         const db = getDB();
         
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // First check if the user already exists
         const existingUser = await new Promise((resolve, reject) => {
             db.get('SELECT * FROM users WHERE email = ? OR username = ?', [email, username], (err, row) => {
                 if (err) reject(err);
@@ -119,11 +121,9 @@ const createAccountHandler = async (req, res) => {
             });
         }
         
-        // If user doesn't exist, proceed with insertion
         const params = [email, username, hashedPassword, discordUsername, discordId, isAdminValue];
         console.log('Database parameters:', params);
         
-        // Use a transaction to ensure data consistency
         const result = await new Promise((resolve, reject) => {
             db.serialize(() => {
                 db.run('BEGIN TRANSACTION');
@@ -140,7 +140,6 @@ const createAccountHandler = async (req, res) => {
                         
                         const userId = this.lastID;
                         
-                        // Verify the inserted user
                         db.get('SELECT id, email, username, is_admin FROM users WHERE id = ?', [userId], (err, insertedUser) => {
                             if (err) {
                                 db.run('ROLLBACK');
@@ -156,7 +155,6 @@ const createAccountHandler = async (req, res) => {
                             
                             console.log('Successfully inserted user:', insertedUser);
                             
-                            // Double check the is_admin value
                             if (insertedUser.is_admin !== isAdminValue) {
                                 console.error('is_admin value mismatch:', {
                                     expected: isAdminValue,
@@ -198,12 +196,9 @@ const createAccountHandler = async (req, res) => {
 function logoutHandler(req, res) {
     const token = req.headers.authorization?.split(' ')[1];
     if (token) {
-        // In a real application, you might want to decode the token to get user info here
-        // For simplicity, we'll just log that a token was blacklisted.
         logger.info(`User logged out (token blacklisted).`);
         tokenBlacklist.add(token);
     }
-    // Clear the access token cookie
     res.clearCookie('accessToken', {
         httpOnly: true,
         secure: config.NODE_ENV === 'production',
