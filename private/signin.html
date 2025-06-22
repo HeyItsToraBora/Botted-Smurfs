@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Admin Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --text-color: #333;
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --border-color: #dcdde1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signin-container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        /* Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background-color: var(--success-color);
+        }
+
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+
+        .notification.info {
+            background-color: var(--primary-color);
+        }
+
+        .notification.warning {
+            background-color: var(--warning-color);
+            color: #000;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification.hide {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <div class="signin-container">
+        <h1>Sign In</h1>
+        <form id="signinForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+
+    <script>
+        // Notification System
+        class NotificationSystem {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = message;
+                
+                const closeButton = document.createElement('button');
+                closeButton.className = 'notification-close';
+                closeButton.innerHTML = '&times;';
+                closeButton.onclick = () => this.hide(notification);
+                
+                notification.appendChild(messageSpan);
+                notification.appendChild(closeButton);
+                this.container.appendChild(notification);
+
+                if (duration > 0) {
+                    setTimeout(() => this.hide(notification), duration);
+                }
+
+                return notification;
+            }
+
+            hide(notification) {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    if (notification.parentNode === this.container) {
+                        this.container.removeChild(notification);
+                    }
+                }, 300);
+            }
+
+            success(message, duration) {
+                return this.show(message, 'success', duration);
+            }
+
+            error(message, duration) {
+                return this.show(message, 'error', duration);
+            }
+
+            info(message, duration) {
+                return this.show(message, 'info', duration);
+            }
+
+            warning(message, duration) {
+                return this.show(message, 'warning', duration);
+            }
+        }
+
+        // Initialize notification system
+        const notifications = new NotificationSystem();
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch('/check-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    notifications.info('Already signed in. Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/private/dashboard.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                notifications.error('Error checking authentication status');
+            }
+        }
+
+        // Handle sign-in form submission
+        document.getElementById('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    notifications.success('Sign in successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/private/dashboard.html';
+                    }, 1000);
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        const errorMessages = data.errors.map(err => err.msg).join(', ');
+                        notifications.error(errorMessages);
+                    } else {
+                        notifications.error(data.message || 'Invalid email or password');
+                    }
+                }
+            } catch (error) {
+                console.error('Error signing in:', error);
+                notifications.error('Error signing in. Please try again.');
+            }
+        });
+
+        // Check auth status on page load
+        checkAuth();
+    </script>
+</body>
+</html> 

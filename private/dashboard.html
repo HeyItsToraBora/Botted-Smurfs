@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --container-bg: white;
+            --text-color: #333;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --danger-color-hover: #c82333;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --container-bg: #2d2d2d;
+            --text-color: #fff;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+            transition: background-color 0.3s;
+        }
+
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.35rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: var(--container-bg);
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        .accounts-list {
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            table-layout: auto; /* Allow columns to auto-size */
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top; /* Ensure consistent vertical alignment */
+            white-space: normal; /* Allow text to wrap */
+        }
+
+        table th:nth-child(7) { /* Targeting the 'Actions' header */
+            text-align: right;
+            width: 180px; /* Allocate enough width for buttons */
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .status-active {
+            color: var(--success-color);
+        }
+
+        .status-banned {
+            color: var(--danger-color);
+        }
+
+        /* New flex container for action buttons within the cell */
+        .action-buttons-row-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end; /* Align buttons to the right */
+            align-items: center; /* Vertically center buttons */
+        }
+
+        td.action-buttons-cell {
+            text-align: right; /* Align content (including the flex wrapper) to the right */
+            min-width: 180px; /* Ensure enough space for buttons */
+        }
+
+        .btn-ban {
+            background: var(--danger-color);
+        }
+
+        .btn-ban:hover {
+            background: #c82333;
+        }
+
+        /* Removed individual button margin-left rules */
+        .btn-edit,
+        .btn-toggle-status,
+        .btn-delete {
+            /* Removed margin-right, relying on gap from .action-buttons-row-wrapper */
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            margin-top: 0.5rem;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            margin-top: 0.5rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 1% auto;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            max-height: 90vh; /* Set a maximum height relative to viewport height */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+            position: relative;
+            color: #fff;
+        }
+
+        .modal h2 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal p {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .modal .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .modal input[type="text"],
+        .modal input[type="email"],
+        .modal input[type="password"],
+        .modal textarea,
+        .modal select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #2a2a2a;
+            color: #fff;
+        }
+
+        .modal textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal .btn-discard,
+        .modal .btn-save,
+        .modal .btn-delete {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal .btn-discard {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .modal .btn-save {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .modal .btn-delete {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .modal .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .modal .close-modal:hover {
+            color: #f44336;
+        }
+
+        /* Status colors */
+        .status-active {
+            color: #4CAF50;
+        }
+
+        .status-banned {
+            color: #f44336;
+        }
+
+        /* Action buttons */
+        .action-buttons-cell {
+            white-space: nowrap;
+        }
+
+        .action-buttons-wrapper {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-edit,
+        .btn-toggle-status,
+        .btn-delete {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-toggle-status {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 4px;
+            color: white;
+            z-index: 1001;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .notification.success {
+            background-color: #4CAF50;
+        }
+
+        .notification.error {
+            background-color: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background-color: var(--success-color);
+        }
+
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+
+        .notification.info {
+            background-color: var(--primary-color);
+        }
+
+        .notification.warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0 5px;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        .notification.hide {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .password-requirements p {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .password-requirements ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .password-requirements li {
+            margin: 3px 0;
+        }
+
+        /* Logs Section */
+        .dashboard-section {
+            margin-top: 2rem;
+        }
+
+        .logs-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #logLevelFilter {
+            padding: 0.35rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        .btn-clear-logs {
+            background: var(--danger-color);
+        }
+
+        .btn-clear-logs:hover {
+            background: #c82333;
+        }
+
+        .logs-container {
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--container-bg);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .log-entry {
+            transition: background-color 0.3s;
+        }
+
+        .log-entry:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .log-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .log-type.info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .log-type.success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .log-type.warning {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .log-type.error {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .log-details {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .log-details:hover {
+            white-space: normal;
+            overflow: visible;
+        }
+
+        .coupons-list {
+            margin-top: 2rem;
+            overflow-x: auto; /* Make table horizontally scrollable */
+            max-width: 100%;
+        }
+
+        #couponsTable {
+            min-width: 1200px; /* Ensure minimum width to show all columns */
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            table-layout: auto; /* Allow columns to auto-size */
+        }
+
+        /* Ensure all columns have reasonable widths */
+        #couponsTable th:nth-child(1), #couponsTable td:nth-child(1) { width: 50px; } /* ID */
+        #couponsTable th:nth-child(2), #couponsTable td:nth-child(2) { width: 120px; } /* Name */
+        #couponsTable th:nth-child(3), #couponsTable td:nth-child(3) { width: 100px; } /* Coupon ID */
+        #couponsTable th:nth-child(4), #couponsTable td:nth-child(4) { width: 150px; } /* Discord User */
+        #couponsTable th:nth-child(5), #couponsTable td:nth-child(5) { width: 100px; } /* Referral % */
+        #couponsTable th:nth-child(6), #couponsTable td:nth-child(6) { width: 100px; } /* Max Usage */
+        #couponsTable th:nth-child(7), #couponsTable td:nth-child(7) { width: 100px; } /* Times Used */
+        #couponsTable th:nth-child(8), #couponsTable td:nth-child(8) { width: 120px; } /* Total Discount */
+        #couponsTable th:nth-child(9), #couponsTable td:nth-child(9) { width: 150px; } /* Last Used */
+        #couponsTable th:nth-child(10), #couponsTable td:nth-child(10) { width: 150px; } /* Created At */
+        #couponsTable th:nth-child(11), #couponsTable td:nth-child(11) { width: 180px; } /* Actions */
+
+        /* Cart Management Styles */
+        #userCartItems {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .cart-item-title {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cart-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .cart-item-actions {
+            margin-top: 0.5rem;
+        }
+
+        .btn-remove-cart-item {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-remove-cart-item:hover {
+            background: var(--danger-color-hover);
+        }
+
+        .cart-summary {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .cart-total {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        #purchaseDetailsPanel > div {
+          background: #232b3d !important;
+          color: #fff !important;
+          border-radius: 8px;
+          padding: 24px;
+          max-width: 600px;
+        }
+        #purchaseDetailsPanel b, #purchaseDetailsPanel span, #purchaseDetailsPanel li, #purchaseDetailsPanel div {
+          color: #fff !important;
+        }
+        #purchaseDetailsPanel ul { color: #fff !important; }
+        #purchaseDetailsPanel button { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <!-- Add notification container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <div class="dashboard-container">
+        <h1>Admin Dashboard</h1>
+        
+        <div class="create-account">
+            <h2>Create New Account</h2>
+            <form id="createAccountForm">
+                <div class="form-group">
+                    <label for="newEmail">Email:</label>
+                    <input type="email" id="newEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="newUsername">Username:</label>
+                    <input type="text" id="newUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password</label>
+                    <input type="password" id="newPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="discordUsername">Discord Username:</label>
+                    <input type="text" id="discordUsername">
+                </div>
+                <div class="form-group">
+                    <label for="discordId">Discord ID:</label>
+                    <input type="text" id="discordId">
+                </div>
+                <div class="form-group">
+                    <label for="isAdmin">Admin Status:</label>
+                    <select id="isAdmin" required>
+                        <option value="0">Regular User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                </div>
+                <button type="submit">Create Account</button>
+            </form>
+            <div id="createAccountMsg" style="display: none;"></div>
+        </div>
+
+        <div class="accounts-list">
+            <h2>Manage Accounts</h2>
+            <table id="accountsTable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Discord</th>
+                        <th>Status</th>
+                        <th>Admin</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="accountsList">
+                    <!-- Accounts will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Offer Management Section -->
+        <div class="dashboard-section">
+            <h2>Manage Offers</h2>
+            <button type="button" class="btn-create" id="openCreateOfferModal">Create New Offer</button>
+            <div class="offers-list">
+                <table id="offersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Header</th>
+                            <th>Description</th>
+                            <th>Min Quantity</th>
+                            <th>Available Quantity</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="offersList">
+                        <!-- Offers will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Coupon Management Section -->
+        <div class="dashboard-section">
+            <h2>Manage Coupons</h2>
+            <button type="button" class="btn-create" id="openCreateCouponModal">Create New Coupon</button>
+            <div class="coupons-list">
+                <table id="couponsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Coupon ID</th>
+                            <th>Discord User</th>
+                            <th>Referral %</th>
+                            <th>Max Usage</th>
+                            <th>Times Used</th>
+                            <th>Total Discount</th>
+                            <th>Last Used</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponsList">
+                        <!-- Coupons will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Crypto Management Section -->
+        <div class="dashboard-section" id="cryptoManagementSection">
+            <h2>Manage Cryptocurrencies</h2>
+            <button type="button" class="btn-create" id="openAddCoinModal">Add New Coin</button>
+            <div class="crypto-list">
+                <table id="cryptoTable">
+                    <thead>
+                        <tr>
+                            <th>Coin</th>
+                            <th>Symbol</th>
+                            <th>Network</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cryptoList">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div class="dashboard-section">
+            <h2>System Logs</h2>
+            <div class="logs-controls">
+                <select id="logLevelFilter">
+                    <option value="all">All Logs</option>
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                </select>
+                <button type="button" class="btn-clear-logs" id="clearLogs">Clear Logs</button>
+            </div>
+            <div class="logs-container">
+                <table id="logsTable">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsList">
+                        <!-- Logs will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Min Order Price Panel -->
+        <div class="dashboard-section" id="minOrderPriceSection">
+            <h2>Minimum Order Price</h2>
+            <form id="minOrderPriceForm" style="display: flex; align-items: center; gap: 1rem;">
+                <label for="minOrderPriceInput">Minimum Price ($):</label>
+                <input type="number" id="minOrderPriceInput" min="0" step="0.01" style="width: 120px;">
+                <button type="submit">Save</button>
+            </form>
+            <div id="minOrderPriceCurrent" style="margin-top: 0.5rem; font-weight: bold;"></div>
+            <div id="minOrderPriceMsg" style="margin-top: 0.5rem;"></div>
+        </div>
+    </div>
+
+    <!-- Edit Account Modal -->
+    <div id="editAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Account</h2>
+            <form id="editAccountForm">
+                <input type="hidden" id="editAccountId">
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUsername">Username:</label>
+                    <input type="text" id="editUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">New Password (leave blank to keep current):</label>
+                    <input type="password" id="editPassword">
+                </div>
+                <div class="form-group">
+                    <label for="editDiscordUsername">Discord Username:</label>
+                    <input type="text" id="editDiscordUsername">
+                </div>
+                <div class="form-group">
+                    <label for="editDiscordId">Discord ID:</label>
+                    <input type="text" id="editDiscordId">
+                </div>
+                <div class="form-group">
+                    <label for="editIsAdmin">Admin Status:</label>
+                    <select id="editIsAdmin">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard">Discard</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ban Reason Modal -->
+    <div id="banReasonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Ban Account</h2>
+            <form id="banReasonForm">
+                <div class="form-group">
+                    <label for="banReason">Ban Reason:</label>
+                    <textarea id="banReason" required rows="4" placeholder="Enter the reason for banning this account..."></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard">Cancel</button>
+                    <button type="submit" class="btn-save">Confirm Ban</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete this account? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-discard">Cancel</button>
+                <button type="button" class="btn-delete">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offer Management Modal -->
+    <div id="offerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="offerModalTitle">Create New Offer</h2>
+            <form id="offerForm">
+                <input type="hidden" id="offerId">
+                <div class="form-group">
+                    <label for="offerHeader">Header:</label>
+                    <input type="text" id="offerHeader" required>
+                </div>
+                <div class="form-group">
+                    <label for="offerDescription">Description:</label>
+                    <textarea id="offerDescription" required rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="offerDetails">Details:</label>
+                    <textarea id="offerDetails" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="offerType">Offer Type:</label>
+                    <input type="text" id="offerType" required>
+                </div>
+                <div class="form-group">
+                    <label for="offerMinQuantity">Minimum Quantity:</label>
+                    <input type="number" id="offerMinQuantity" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="offerAvailableQuantity">Available Quantity:</label>
+                    <input type="number" id="offerAvailableQuantity" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="offerAvailableServers">Available Servers:</label>
+                    <input type="text" id="offerAvailableServers" placeholder="e.g., NA, EUW, KR">
+                </div>
+                <div class="form-group">
+                    <label for="offerImgUrl">Image URL:</label>
+                    <input type="text" id="offerImgUrl" placeholder="https://example.com/image.png">
+                </div>
+                <div class="form-group">
+                    <label for="offerPricePerAcc">Price Per Account ($):</label>
+                    <input type="number" id="offerPricePerAcc" required min="0.01" step="0.01">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard" id="cancelOfferEdit">Cancel</button>
+                    <button type="submit" class="btn-save">Save Offer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Offer Confirmation Modal -->
+    <div id="deleteOfferConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Delete Offer</h2>
+            <p>Are you sure you want to delete this offer? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-discard" id="cancelOfferDelete">Cancel</button>
+                <button type="button" class="btn-delete" id="confirmOfferDelete">Delete Offer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coupon Management Modal -->
+    <div id="couponModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="couponModalTitle">Create New Coupon</h2>
+            <form id="couponForm">
+                <input type="hidden" id="couponId">
+                <div class="form-group">
+                    <label for="couponName">Name:</label>
+                    <input type="text" id="couponName" required>
+                </div>
+                <div class="form-group">
+                    <label for="couponCode">Coupon ID:</label>
+                    <input type="text" id="couponCode" required>
+                </div>
+                <div class="form-group">
+                    <label for="couponDiscordUsername">Discord Username:</label>
+                    <input type="text" id="couponDiscordUsername">
+                </div>
+                <div class="form-group">
+                    <label for="couponDiscordId">Discord ID:</label>
+                    <input type="text" id="couponDiscordId">
+                </div>
+                <div class="form-group">
+                    <label for="couponPercentage">Referral Percentage:</label>
+                    <input type="number" id="couponPercentage" required min="0.01" max="100" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="couponMaxUsage">Maximum Usage:</label>
+                    <input type="number" id="couponMaxUsage" required min="1" value="999">
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard" id="cancelCouponEdit">Cancel</button>
+                    <button type="submit" class="btn-save">Save Coupon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Coupon Confirmation Modal -->
+    <div id="deleteCouponConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Delete Coupon</h2>
+            <p>Are you sure you want to delete this coupon? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-discard" id="cancelCouponDelete">Cancel</button>
+                <button type="button" class="btn-delete" id="confirmCouponDelete">Delete Coupon</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Coin Modal -->
+    <div id="addCoinModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Add New Coin</h2>
+            <form id="addCoinForm">
+                <div class="form-group">
+                    <label for="coinName">Coin Name:</label>
+                    <input type="text" id="coinName" required>
+                </div>
+                <div class="form-group">
+                    <label for="coinSymbol">Symbol:</label>
+                    <input type="text" id="coinSymbol" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard">Cancel</button>
+                    <button type="submit" class="btn-save">Add Coin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Network Modal -->
+    <div id="addNetworkModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Add Network</h2>
+            <form id="addNetworkForm">
+                <div class="form-group">
+                    <label for="networkCoinSelect">Coin:</label>
+                    <select id="networkCoinSelect" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="networkName">Network Name:</label>
+                    <input type="text" id="networkName" required>
+                </div>
+                <div class="form-group">
+                    <label for="networkAddress">Address:</label>
+                    <input type="text" id="networkAddress" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-discard">Cancel</button>
+                    <button type="submit" class="btn-save">Add Network</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cart Management Modal -->
+    <div id="manageCartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Cart for <span id="manageCartUsername"></span></h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Add Offer to Cart Form -->
+                <form id="addOfferToCartForm" style="margin-bottom:1em;display:flex;gap:0.5em;flex-wrap:wrap;align-items:flex-end;">
+                    <select id="offerSelect" required style="min-width:180px;"></select>
+                    <select id="serverSelect" required style="min-width:120px;"></select>
+                    <input type="number" id="offerQuantityInput" min="1" value="1" style="width:70px;" required>
+                    <button type="submit" class="btn-create">Add</button>
+                </form>
+                <div id="userCartItems"></div>
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        Total: <span id="cartTotal">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-discard">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchases Panel (inline, always visible) -->
+    <section id="purchasesPanel" style="margin:40px 0 0 0;">
+      <h2>Purchases</h2>
+      <div style="overflow-x:auto;max-width:100vw;">
+        <table id="purchasesTable" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th>ID</th><th>User</th><th>Gmail to be Sent</th><th>Date</th><th>Status</th><th>Payment</th><th>Total</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="purchaseDetailsPanel" style="display:none;margin-top:24px;"></div>
+    </section>
+
+    <!-- Purchase Details Modal -->
+    <div id="purchaseDetailsModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <span class="close-modal" id="closePurchaseDetailsModal">&times;</span>
+            <h2>Purchase Details</h2>
+            <div id="purchaseDetailsContent"></div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-discard" id="closePurchaseDetailsBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Notification System
+        class NotificationSystem {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = message;
+                
+                const closeButton = document.createElement('button');
+                closeButton.className = 'notification-close';
+                closeButton.innerHTML = '&times;';
+                closeButton.onclick = () => this.hide(notification);
+                
+                notification.appendChild(messageSpan);
+                notification.appendChild(closeButton);
+                this.container.appendChild(notification);
+
+                if (duration > 0) {
+                    setTimeout(() => this.hide(notification), duration);
+                }
+
+                return notification;
+            }
+
+            hide(notification) {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    if (notification.parentNode === this.container) {
+                        this.container.removeChild(notification);
+                    }
+                }, 300);
+            }
+
+            success(message, duration) {
+                return this.show(message, 'success', duration);
+            }
+
+            error(message, duration) {
+                return this.show(message, 'error', duration);
+            }
+
+            info(message, duration) {
+                return this.show(message, 'info', duration);
+            }
+
+            warning(message, duration) {
+                return this.show(message, 'warning', duration);
+            }
+        }
+
+        // Initialize notification system
+        const notifications = new NotificationSystem();
+
+        // Base URL for API calls
+        const API_BASE_URL = window.location.origin;
+
+        // Function to handle token refresh
+        async function refreshToken() {
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                if (!refreshToken) {
+                    throw new Error('No refresh token available');
+                }
+
+                const response = await fetch('/refresh-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ refreshToken })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to refresh token');
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error refreshing token:', error);
+                return false;
+            }
+        }
+
+        // Function to handle API calls with automatic token refresh
+        async function fetchWithTokenRefresh(url, options = {}) {
+            try {
+                // Add token to headers if not present
+                if (!options.headers) {
+                    options.headers = {};
+                }
+                if (!options.headers['Authorization']) {
+                    const token = localStorage.getItem('accessToken');
+                    if (token) {
+                        options.headers['Authorization'] = `Bearer ${token}`;
+                    }
+                }
+
+                let response = await fetch(url, options);
+
+                // If token expired, try to refresh
+                if (response.status === 401) {
+                    const refreshSuccess = await refreshToken();
+                    if (refreshSuccess) {
+                        // Retry the request with new token
+                        options.headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+                        response = await fetch(url, options);
+                    } else {
+                        // If refresh failed, redirect to login
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                }
+
+                return response;
+            } catch (error) {
+                console.error('Error in fetchWithTokenRefresh:', error);
+                throw error;
+            }
+
+        }
+
+        // Check token expiration on page load
+        function checkTokenExpiration() {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const expirationTime = payload.exp * 1000; // Convert to milliseconds
+                    const currentTime = Date.now();
+                    
+                    // If token expires in less than 5 minutes, refresh it
+                    if (expirationTime - currentTime < 5 * 60 * 1000) {
+                        refreshToken();
+                    }
+                } catch (error) {
+                    console.error('Error checking token expiration:', error);
+                }
+            }
+        }
+
+        // Check token expiration every minute
+        setInterval(checkTokenExpiration, 60 * 1000);
+        checkTokenExpiration(); // Initial check
+
+        // Load accounts
+        async function loadAccounts() {
+            try {
+                const response = await fetchWithTokenRefresh('/accounts', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const accountsList = document.getElementById('accountsList');
+                    accountsList.innerHTML = '';
+                    
+                    data.accounts.forEach(account => {
+                        console.log(`Account ID: ${account.id}, Raw is_admin: ${account.is_admin}, Type: ${typeof account.is_admin}`);
+                        // Convert is_admin to boolean for display
+                        const isAdmin = account.is_admin === 1 || account.is_admin === '1';
+                        console.log(`Account ID: ${account.id}, Converted isAdmin: ${isAdmin}`);
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${account.username}</td>
+                            <td>${account.email}</td>
+                            <td>${account.discord_username || ''}${account.discord_id ? ` (${account.discord_id})` : ''}</td>
+                            <td class="status-${account.status}">${account.status}</td>
+                            <td>${isAdmin ? 'Yes' : 'No'}</td>
+                            <td>${new Date(account.created_at).toLocaleString()}</td>
+                            <td class="action-buttons-cell">
+                                <div class="action-buttons-wrapper" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.25em;">
+                                    <div>
+                                    <button type="button" class="btn-edit" data-id="${account.id}">Edit</button>
+                                    <button type="button" class="btn-toggle-status" data-id="${account.id}" data-status="${account.status}">
+                                    ${account.status === 'active' ? 'Ban' : 'Unban'}
+                                </button>
+                                    <button type="button" class="btn-delete" data-id="${account.id}">Delete</button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn-manage-cart" data-id="${account.id}">Manage Cart</button>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                        accountsList.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                notifications.error('Error loading accounts. Please try again.');
+            }
+        }
+
+        // Create account
+        document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('newEmail').value;
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const discordUsername = document.getElementById('discordUsername').value;
+            const discordId = document.getElementById('discordId').value;
+            const isAdminSelect = document.getElementById('isAdmin');
+            const isAdmin = parseInt(isAdminSelect.value, 10);
+            
+            const requestBody = { 
+                email, 
+                username, 
+                password, 
+                discordUsername,
+                discordId,
+                isAdmin 
+            };
+            
+            try {
+                const response = await fetchWithTokenRefresh('/create-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notifications.success('Account created successfully');
+                    e.target.reset();
+                    isAdminSelect.value = '0';
+                    loadAccounts();
+                } else {
+                    notifications.error(data.message || 'Error creating account');
+                }
+            } catch (error) {
+                console.error('Error creating account:', error);
+                notifications.error('Error creating account. Please try again.');
+            }
+        });
+
+        let currentDeleteAccountId = null;
+
+        // Offer Management Variables
+        let currentOfferId = null;
+        let currentDeleteOfferId = null;
+
+        // Function to open delete confirmation modal
+        function openDeleteConfirmModal(accountId) {
+            currentDeleteAccountId = accountId;
+            document.getElementById('deleteConfirmModal').style.display = 'block';
+        }
+
+        // Function to close delete confirmation modal
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            currentDeleteAccountId = null;
+        }
+
+        // Function to confirm and execute delete
+        async function confirmDelete() {
+            if (currentDeleteAccountId) {
+                await deleteAccount(currentDeleteAccountId);
+                notifications.success('Account deleted successfully');
+                closeDeleteConfirmModal();
+            }
+        }
+
+        // Function to open offer modal (create/edit)
+        async function openOfferModal(offer = null) {
+            const modal = document.getElementById('offerModal');
+            const title = document.getElementById('offerModalTitle');
+            const form = document.getElementById('offerForm');
+            form.reset(); // Clear form on open
+
+            if (offer) {
+                currentOfferId = offer.id;
+                title.textContent = 'Edit Offer';
+                document.getElementById('offerId').value = offer.id;
+                document.getElementById('offerHeader').value = offer.header;
+                document.getElementById('offerDescription').value = offer.description;
+                document.getElementById('offerDetails').value = offer.details || '';
+                document.getElementById('offerMinQuantity').value = offer.min_quantity;
+                document.getElementById('offerAvailableQuantity').value = offer.available_quantity;
+                document.getElementById('offerAvailableServers').value = offer.available_servers || '';
+                document.getElementById('offerImgUrl').value = offer.img_url || '';
+                document.getElementById('offerPricePerAcc').value = offer.price_per_acc;
+                document.getElementById('offerType').value = offer.offer_type || '';
+            } else {
+                currentOfferId = null;
+                title.textContent = 'Create New Offer';
+                document.getElementById('offerId').value = ''; // Explicitly clear the ID
+            }
+            modal.style.display = 'block';
+        }
+
+        // Function to close offer modal
+        function closeOfferModal() {
+            document.getElementById('offerModal').style.display = 'none';
+            currentOfferId = null;
+        }
+
+        // Function to load offers
+        async function loadOffers() {
+            try {
+                const response = await fetchWithTokenRefresh('/offers');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    const offersList = document.getElementById('offersList');
+                    offersList.innerHTML = '';
+
+                    data.offers.forEach(offer => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${offer.id}</td>
+                            <td>${offer.header}</td>
+                            <td>${offer.description.substring(0, 50)}${offer.description.length > 50 ? '...' : ''}</td>
+                            <td>${offer.min_quantity}</td>
+                            <td>${offer.available_quantity}</td>
+                            <td>$${offer.price_per_acc.toFixed(2)}</td>
+                            <td class="action-buttons-cell">
+                                <div class="action-buttons-wrapper">
+                                    <button type="button" class="btn-edit-offer" data-id="${offer.id}">Edit</button>
+                                    <button type="button" class="btn-delete-offer" data-id="${offer.id}">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        offersList.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading offers:', error);
+                notifications.error('Error loading offers. Please try again.');
+            }
+        }
+
+        // Handle offer form submission
+        document.getElementById('offerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const offerId = document.getElementById('offerId').value;
+            const header = document.getElementById('offerHeader').value;
+            const description = document.getElementById('offerDescription').value;
+            const details = document.getElementById('offerDetails').value;
+            const min_quantity = parseInt(document.getElementById('offerMinQuantity').value, 10);
+            const available_quantity = parseInt(document.getElementById('offerAvailableQuantity').value, 10);
+            const available_servers = document.getElementById('offerAvailableServers').value;
+            const img_url = document.getElementById('offerImgUrl').value;
+            const price_per_acc = parseFloat(document.getElementById('offerPricePerAcc').value);
+            const offer_type = document.getElementById('offerType').value;
+
+            const requestBody = {
+                header, description, details, min_quantity, available_quantity, available_servers, img_url, price_per_acc, offer_type
+            };
+
+            try {
+                const method = offerId ? 'PUT' : 'POST';
+                const url = offerId ? `/offers/${offerId}` : '/offers';
+
+                const response = await fetchWithTokenRefresh(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    notifications.success(`Offer ${offerId ? 'updated' : 'created'} successfully!`);
+                    closeOfferModal();
+                    loadOffers(); // Refresh the list of offers
+                } else {
+                    notifications.error(data.message || `Error ${offerId ? 'updating' : 'creating'} offer`);
+                }
+            } catch (error) {
+                console.error(`Error ${offerId ? 'updating' : 'creating'} offer:`, error);
+                notifications.error(`Error ${offerId ? 'updating' : 'creating'} offer. Please try again.`);
+            }
+        });
+
+        // Function to open delete offer confirmation modal
+        function openDeleteOfferConfirmModal(offerId) {
+            currentDeleteOfferId = offerId;
+            document.getElementById('deleteOfferConfirmModal').style.display = 'block';
+        }
+
+        // Function to close delete offer confirmation modal
+        function closeDeleteOfferConfirmModal() {
+            document.getElementById('deleteOfferConfirmModal').style.display = 'none';
+            currentDeleteOfferId = null;
+        }
+
+        // Function to confirm and execute offer deletion
+        document.getElementById('confirmOfferDelete').addEventListener('click', async () => {
+            if (currentDeleteOfferId) {
+                try {
+                    const response = await fetchWithTokenRefresh(`/offers/${currentDeleteOfferId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+
+                    if (data.success) {
+                        notifications.success('Offer deleted successfully!');
+                        closeDeleteOfferConfirmModal();
+                        loadOffers(); // Refresh the list of offers
+                    } else {
+                        notifications.error(data.message || 'Error deleting offer');
+                    }
+                } catch (error) {
+                    console.error('Error deleting offer:', error);
+                    notifications.error('Error deleting offer. Please try again.');
+                }
+            }
+        });
+
+        // Add event listeners for new offer buttons
+        document.getElementById('openCreateOfferModal').addEventListener('click', () => openOfferModal());
+        document.getElementById('cancelOfferEdit').addEventListener('click', closeOfferModal);
+        document.getElementById('cancelOfferDelete').addEventListener('click', closeDeleteOfferConfirmModal);
+
+        // Event delegation for dynamically created offer edit/delete buttons
+        document.addEventListener('click', async function(e) {
+            if (e.target.classList.contains('btn-edit-offer')) {
+                const offerId = e.target.dataset.id;
+                try {
+                    const response = await fetchWithTokenRefresh(`/offers/${offerId}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (data.success) {
+                        openOfferModal(data.offer);
+                    } else {
+                        notifications.error(data.message || 'Error fetching offer details.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching offer details:', error);
+                    notifications.error('Error fetching offer details. Please try again.');
+                }
+            } else if (e.target.classList.contains('btn-delete-offer')) {
+                const offerId = e.target.dataset.id;
+                openDeleteOfferConfirmModal(offerId);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editAccountModal');
+            const banModal = document.getElementById('banReasonModal');
+            const deleteModal = document.getElementById('deleteConfirmModal');
+            const offerModal = document.getElementById('offerModal');
+            const deleteOfferModal = document.getElementById('deleteOfferConfirmModal');
+            
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+            if (event.target === banModal) {
+                closeBanReasonModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteConfirmModal();
+            }
+            if (event.target === offerModal) {
+                closeOfferModal();
+            }
+            if (event.target === deleteOfferModal) {
+                closeDeleteOfferConfirmModal();
+            }
+        }
+
+        // Add event listeners for modal close buttons (X) and cancel buttons
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal.id === 'editAccountModal') {
+                    closeEditModal();
+                } else if (modal.id === 'banReasonModal') {
+                    closeBanReasonModal();
+                } else if (modal.id === 'deleteConfirmModal') {
+                    closeDeleteConfirmModal();
+                } else if (modal.id === 'offerModal') { // New: Offer Modal X button
+                    closeOfferModal();
+                } else if (modal.id === 'deleteOfferConfirmModal') { // New: Delete Offer Modal X button
+                    closeDeleteOfferConfirmModal();
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-discard').forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal.id === 'editAccountModal') {
+                    closeEditModal();
+                } else if (modal.id === 'banReasonModal') {
+                    closeBanReasonModal();
+                } else if (modal.id === 'deleteConfirmModal') {
+                    closeDeleteConfirmModal();
+                } else if (modal.id === 'offerModal') { // New: Offer Modal Cancel button
+                    closeOfferModal();
+                } else if (modal.id === 'deleteOfferConfirmModal') { // New: Delete Offer Modal Cancel button
+                    closeDeleteOfferConfirmModal();
+                }
+            });
+        });
+
+        // Add event listener for delete confirmation
+        document.querySelector('#deleteConfirmModal .btn-delete').addEventListener('click', async function() {
+            if (currentDeleteAccountId) {
+                await deleteAccount(currentDeleteAccountId);
+                closeDeleteConfirmModal();
+            }
+        });
+
+        // Initial loads
+        loadAccounts();
+        loadOffers(); // New: Load offers on page load
+
+        // Coupon Management Variables
+        let currentCouponId = null;
+        let currentDeleteCouponId = null;
+
+        // Function to open coupon modal (create/edit)
+        async function openCouponModal(coupon = null) {
+            const modal = document.getElementById('couponModal');
+            const title = document.getElementById('couponModalTitle');
+            const form = document.getElementById('couponForm');
+            form.reset(); // Clear form on open
+
+            if (coupon) {
+                currentCouponId = coupon.id;
+                title.textContent = 'Edit Coupon';
+                document.getElementById('couponId').value = coupon.id;
+                document.getElementById('couponName').value = coupon.name;
+                document.getElementById('couponCode').value = coupon.coupon_id;
+                document.getElementById('couponDiscordUsername').value = coupon.discord_name || '';
+                document.getElementById('couponDiscordId').value = coupon.discord_id || '';
+                document.getElementById('couponPercentage').value = coupon.percentage_per_purchase;
+                document.getElementById('couponMaxUsage').value = coupon.max_usage || 999;
+            } else {
+                currentCouponId = null;
+                title.textContent = 'Create New Coupon';
+                document.getElementById('couponId').value = ''; // Clear the hidden couponId field
+            }
+            modal.style.display = 'block';
+        }
+
+        // Function to close coupon modal
+        function closeCouponModal() {
+            document.getElementById('couponModal').style.display = 'none';
+            currentCouponId = null;
+        }
+
+        // Function to load coupons
+        async function loadCoupons() {
+            try {
+                const response = await fetchWithTokenRefresh('/coupons');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('Coupons data received:', data.coupons); // Debug log
+                    const couponsList = document.getElementById('couponsList');
+                    couponsList.innerHTML = '';
+
+                    data.coupons.forEach(coupon => {
+                        console.log('Processing coupon:', coupon); // Debug log for each coupon
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${coupon.id}</td>
+                            <td>${coupon.name}</td>
+                            <td>${coupon.coupon_id}</td>
+                            <td>${coupon.discord_name || ''}${coupon.discord_id ? ` (${coupon.discord_id})` : ''}</td>
+                            <td>${coupon.percentage_per_purchase}%</td>
+                            <td>${coupon.max_usage || 999}</td>
+                            <td>${coupon.times_used || 0}</td>
+                            <td>${(coupon.total_discount_amount || 0).toFixed(2)}</td>
+                            <td>${coupon.last_used_at ? new Date(coupon.last_used_at).toLocaleString() : 'Never'}</td>
+                            <td>${new Date(coupon.created_at).toLocaleString()}</td>
+                            <td class="action-buttons-cell">
+                                <div class="action-buttons-wrapper">
+                                    <button type="button" class="btn-edit-coupon" data-id="${coupon.id}">Edit</button>
+                                    <button type="button" class="btn-delete-coupon" data-id="${coupon.id}">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        couponsList.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading coupons:', error);
+                notifications.error('Error loading coupons. Please try again.');
+            }
+        }
+
+        // Handle coupon form submission
+        document.getElementById('couponForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const couponId = document.getElementById('couponId').value;
+            const name = document.getElementById('couponName').value;
+            const coupon_id = document.getElementById('couponCode').value;
+            const discord_name = document.getElementById('couponDiscordUsername').value;
+            const discord_id = document.getElementById('couponDiscordId').value;
+            const percentage_per_purchase = parseFloat(document.getElementById('couponPercentage').value);
+            const max_usage = parseInt(document.getElementById('couponMaxUsage').value);
+
+            const requestBody = {
+                name,
+                coupon_id,
+                discord_name,
+                discord_id,
+                percentage_per_purchase,
+                max_usage
+            };
+
+            try {
+                const method = couponId ? 'PUT' : 'POST';
+                const url = couponId ? `/coupons/${couponId}` : '/coupons';
+
+                const response = await fetchWithTokenRefresh(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    notifications.success(`Coupon ${couponId ? 'updated' : 'created'} successfully!`);
+                    closeCouponModal();
+                    loadCoupons(); // Refresh the list of coupons
+                } else {
+                    notifications.error(data.message || `Error ${couponId ? 'updating' : 'creating'} coupon`);
+                }
+            } catch (error) {
+                console.error(`Error ${couponId ? 'updating' : 'creating'} coupon:`, error);
+                notifications.error(`Error ${couponId ? 'updating' : 'creating'} coupon. Please try again.`);
+            }
+        });
+
+        // Function to open delete coupon confirmation modal
+        function openDeleteCouponConfirmModal(couponId) {
+            currentDeleteCouponId = couponId;
+            document.getElementById('deleteCouponConfirmModal').style.display = 'block';
+        }
+
+        // Function to close delete coupon confirmation modal
+        function closeDeleteCouponConfirmModal() {
+            document.getElementById('deleteCouponConfirmModal').style.display = 'none';
+            currentDeleteCouponId = null;
+        }
+
+        // Function to confirm and execute coupon deletion
+        document.getElementById('confirmCouponDelete').addEventListener('click', async () => {
+            if (currentDeleteCouponId) {
+                try {
+                    const response = await fetchWithTokenRefresh(`/coupons/${currentDeleteCouponId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+
+                    if (data.success) {
+                        notifications.success('Coupon deleted successfully!');
+                        closeDeleteCouponConfirmModal();
+                        loadCoupons(); // Refresh the list of coupons
+                    } else {
+                        notifications.error(data.message || 'Error deleting coupon');
+                    }
+                } catch (error) {
+                    console.error('Error deleting coupon:', error);
+                    notifications.error('Error deleting coupon. Please try again.');
+                }
+            }
+        });
+
+        // Add event listeners for new coupon buttons
+        document.getElementById('openCreateCouponModal').addEventListener('click', () => openCouponModal());
+        document.getElementById('cancelCouponEdit').addEventListener('click', closeCouponModal);
+        document.getElementById('cancelCouponDelete').addEventListener('click', closeDeleteCouponConfirmModal);
+
+        // Event delegation for dynamically created coupon edit/delete buttons
+        document.addEventListener('click', async function(e) {
+            if (e.target.classList.contains('btn-edit-coupon')) {
+                const couponId = e.target.dataset.id;
+                try {
+                    const response = await fetchWithTokenRefresh(`/coupons/${couponId}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (data.success) {
+                        openCouponModal(data.coupon);
+                    } else {
+                        notifications.error(data.message || 'Error fetching coupon details.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching coupon details:', error);
+                    notifications.error('Error fetching coupon details. Please try again.');
+                }
+            } else if (e.target.classList.contains('btn-delete-coupon')) {
+                const couponId = e.target.dataset.id;
+                openDeleteCouponConfirmModal(couponId);
+            }
+        });
+
+        // Update window click handler to include coupon modals
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editAccountModal');
+            const banModal = document.getElementById('banReasonModal');
+            const deleteModal = document.getElementById('deleteConfirmModal');
+            const offerModal = document.getElementById('offerModal');
+            const deleteOfferModal = document.getElementById('deleteOfferConfirmModal');
+            const couponModal = document.getElementById('couponModal');
+            const deleteCouponModal = document.getElementById('deleteCouponConfirmModal');
+            
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+            if (event.target === banModal) {
+                closeBanReasonModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteConfirmModal();
+            }
+            if (event.target === offerModal) {
+                closeOfferModal();
+            }
+            if (event.target === deleteOfferModal) {
+                closeDeleteOfferConfirmModal();
+            }
+            if (event.target === couponModal) {
+                closeCouponModal();
+            }
+            if (event.target === deleteCouponModal) {
+                closeDeleteCouponConfirmModal();
+            }
+        }
+
+        // Update modal close button handlers
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal.id === 'editAccountModal') {
+                    closeEditModal();
+                } else if (modal.id === 'banReasonModal') {
+                    closeBanReasonModal();
+                } else if (modal.id === 'deleteConfirmModal') {
+                    closeDeleteConfirmModal();
+                } else if (modal.id === 'offerModal') {
+                    closeOfferModal();
+                } else if (modal.id === 'deleteOfferConfirmModal') {
+                    closeDeleteOfferConfirmModal();
+                } else if (modal.id === 'couponModal') {
+                    closeCouponModal();
+                } else if (modal.id === 'deleteCouponConfirmModal') {
+                    closeDeleteCouponConfirmModal();
+                }
+            });
+        });
+
+        // Initial loads
+        loadAccounts();
+        loadOffers();
+        loadCoupons(); // Load coupons on page load
+
+        // Logging System
+        class LoggingSystem {
+            constructor() {
+                this.logs = [];
+                this.maxLogs = 1000;
+                this.logLevelFilter = document.getElementById('logLevelFilter');
+                this.logsList = document.getElementById('logsList');
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                this.logLevelFilter.addEventListener('change', () => this.renderLogs());
+                document.getElementById('clearLogs').addEventListener('click', () => this.clearLogs());
+            }
+
+            async addLog(type, action, details, user = 'System') {
+                const timestamp = new Date().toLocaleString();
+                const log = {
+                    timestamp,
+                    type,
+                    action,
+                    details,
+                    user
+                };
+
+                this.logs.unshift(log);
+                if (this.logs.length > this.maxLogs) {
+                    this.logs.pop();
+                }
+
+                this.renderLogs();
+            }
+
+            renderLogs() {
+                const selectedLevel = this.logLevelFilter.value;
+                const filteredLogs = selectedLevel === 'all' 
+                    ? this.logs 
+                    : this.logs.filter(log => log.type === selectedLevel);
+
+                this.logsList.innerHTML = '';
+                filteredLogs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.className = 'log-entry';
+                    row.innerHTML = `
+                        <td>${log.timestamp}</td>
+                        <td><span class="log-type ${log.type}">${log.type}</span></td>
+                        <td>${log.action}</td>
+                        <td class="log-details" title="${log.details}">${log.details}</td>
+                        <td>${log.user}</td>
+                    `;
+                    this.logsList.appendChild(row);
+                });
+            }
+
+            clearLogs() {
+                this.logs = [];
+                this.renderLogs();
+            }
+
+            // Convenience methods for different log types
+            info(action, details, user) {
+                this.addLog('info', action, details, user);
+            }
+
+            success(action, details, user) {
+                this.addLog('success', action, details, user);
+            }
+
+            warning(action, details, user) {
+                this.addLog('warning', action, details, user);
+            }
+
+            error(action, details, user) {
+                this.addLog('error', action, details, user);
+            }
+        }
+
+        // Initialize logging system
+        const logger = new LoggingSystem();
+
+        // Update existing functions to include more detailed logging
+        async function loadAccounts() {
+            try {
+                const response = await fetchWithTokenRefresh('/accounts');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    logger.success('Accounts Loaded', `Successfully loaded ${data.accounts.length} accounts`);
+                    const accountsList = document.getElementById('accountsList');
+                    accountsList.innerHTML = '';
+                    
+                    data.accounts.forEach(account => {
+                        console.log(`Account ID: ${account.id}, Raw is_admin: ${account.is_admin}, Type: ${typeof account.is_admin}`);
+                        // Convert is_admin to boolean for display
+                        const isAdmin = account.is_admin === 1 || account.is_admin === '1';
+                        console.log(`Account ID: ${account.id}, Converted isAdmin: ${isAdmin}`);
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${account.username}</td>
+                            <td>${account.email}</td>
+                            <td>${account.discord_username || ''}${account.discord_id ? ` (${account.discord_id})` : ''}</td>
+                            <td class="status-${account.status}">${account.status}</td>
+                            <td>${isAdmin ? 'Yes' : 'No'}</td>
+                            <td>${new Date(account.created_at).toLocaleString()}</td>
+                            <td class="action-buttons-cell">
+                                <div class="action-buttons-wrapper" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.25em;">
+                                    <div>
+                                    <button type="button" class="btn-edit" data-id="${account.id}">Edit</button>
+                                    <button type="button" class="btn-toggle-status" data-id="${account.id}" data-status="${account.status}">
+                                    ${account.status === 'active' ? 'Ban' : 'Unban'}
+                                </button>
+                                    <button type="button" class="btn-delete" data-id="${account.id}">Delete</button>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn-manage-cart" data-id="${account.id}">Manage Cart</button>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                        accountsList.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                logger.error('Accounts Load Error', `Failed to load accounts: ${error.message}`);
+                notifications.error('Error loading accounts. Please try again.');
+            }
+        }
+
+        // Update create account handler with more detailed logging
+        document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('newEmail').value;
+            const username = document.getElementById('newUsername').value;
+            const isAdmin = document.getElementById('isAdmin').value === '1';
+            
+            try {
+                const response = await fetchWithTokenRefresh('/create-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, username, isAdmin })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    logger.success('Account Created', `Created account for ${username} (${email})${isAdmin ? ' with admin privileges' : ''}`);
+                    notifications.success('Account created successfully');
+                    e.target.reset();
+                    loadAccounts();
+                } else {
+                    logger.error('Account Creation Failed', `Failed to create account for ${username}: ${data.message}`);
+                    notifications.error(data.message || 'Error creating account');
+                }
+            } catch (error) {
+                logger.error('Account Creation Error', `Failed to create account: ${error.message}`);
+                notifications.error('Error creating account. Please try again.');
+            }
+        });
+
+        // Update delete account handler with more detailed logging
+        async function deleteAccount(accountId) {
+            try {
+                const response = await fetchWithTokenRefresh(`/delete-account/${accountId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    logger.warning('Account Deleted', `Deleted account ID: ${accountId}`);
+                    notifications.success('Account deleted successfully');
+                    loadAccounts();
+                }
+            } catch (error) {
+                logger.error('Account Deletion Error', `Failed to delete account ${accountId}: ${error.message}`);
+                notifications.error('Error deleting account');
+            }
+        }
+
+        // Update ban/unban handler with more detailed logging
+        async function toggleAccountStatus(accountId, currentStatus) {
+            if (currentStatus === 'active') {
+                document.getElementById('banReasonModal').style.display = 'block';
+                const banForm = document.getElementById('banReasonForm');
+                // Remove any previous handler
+                banForm.onsubmit = null;
+                banForm.onsubmit = async function(e) {
+                    e.preventDefault();
+                    const banReason = document.getElementById('banReason').value.trim();
+                    if (!banReason) {
+                        notifications.error('Ban reason is required.');
+                        return;
+                    }
+                    try {
+                        const response = await fetchWithTokenRefresh('/update-account-status', {
+                            method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                            body: JSON.stringify({ accountId, status: 'banned', banReason })
+                });
+                const data = await response.json();
+                if (data.success) {
+                            notifications.success('Account banned successfully');
+                            closeBanReasonModal();
+                    loadAccounts();
+                        } else {
+                            notifications.error(data.message || 'Error banning account');
+                }
+            } catch (error) {
+                        notifications.error('Error banning account. Please try again.');
+                    } finally {
+                        banForm.onsubmit = null;
+                    }
+                };
+            } else {
+                // Unban directly
+                try {
+                    const response = await fetchWithTokenRefresh('/update-account-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ accountId, status: 'active', banReason: '' })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        notifications.success('Account unbanned successfully');
+                        loadAccounts();
+                    } else {
+                        notifications.error(data.message || 'Error unbanning account');
+                    }
+                } catch (error) {
+                    notifications.error('Error unbanning account. Please try again.');
+                }
+            }
+        }
+        // ... existing code ...
+
+        // === Crypto Management Panel JS ===
+        async function loadCryptoTable() {
+            const tbody = document.getElementById('cryptoList');
+            tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+            try {
+                const coinsRes = await fetch('/api/crypto/coins');
+                const coinsData = await coinsRes.json();
+                if (!coinsData.success) throw new Error(coinsData.message);
+                const coins = coinsData.coins;
+                tbody.innerHTML = '';
+                if (coins.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">No coins found.</td></tr>';
+                    return;
+                }
+                for (const coin of coins) {
+                    const networksRes = await fetch(`/api/crypto/networks/${encodeURIComponent(coin.symbol)}`);
+                    const networksData = await networksRes.json();
+                    if (!networksData.success) throw new Error(networksData.message);
+                    const networks = networksData.networks;
+                    if (networks.length === 0) {
+                        tbody.innerHTML += `<tr><td>${coin.name}</td><td>${coin.symbol}</td><td colspan='2'>No networks</td><td><button class='btn-delete' data-symbol='${coin.symbol}'>Delete Coin</button> <button class='btn-create' data-coin='${coin.symbol}' data-coinname='${coin.name}'>Add Network</button></td></tr>`;
+                    } else {
+                        networks.forEach((network, i) => {
+                            tbody.innerHTML += `<tr><td>${i === 0 ? coin.name : ''}</td><td>${i === 0 ? coin.symbol : ''}</td><td>${network.name}</td><td>${network.address}</td><td><button class='btn-delete' data-networkid='${network.id}'>Delete Network</button>${i === 0 ? ` <button class='btn-delete' data-symbol='${coin.symbol}'>Delete Coin</button> <button class='btn-create' data-coin='${coin.symbol}' data-coinname='${coin.name}'>Add Network</button>` : ''}</td></tr>`;
+                        });
+                    }
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan='5'>Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Modal logic
+        const addCoinModal = document.getElementById('addCoinModal');
+        const addNetworkModal = document.getElementById('addNetworkModal');
+        const openAddCoinModalBtn = document.getElementById('openAddCoinModal');
+        const addCoinForm = document.getElementById('addCoinForm');
+        const addNetworkForm = document.getElementById('addNetworkForm');
+        const networkCoinSelect = document.getElementById('networkCoinSelect');
+
+        openAddCoinModalBtn.onclick = () => { addCoinModal.style.display = 'block'; };
+        addCoinModal.querySelector('.close-modal').onclick = () => { addCoinModal.style.display = 'none'; };
+        addCoinForm.querySelector('.btn-discard').onclick = () => { addCoinModal.style.display = 'none'; };
+        addCoinForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('coinName').value.trim();
+            const symbol = document.getElementById('coinSymbol').value.trim();
+            if (!name || !symbol) return notifications.error('Name and symbol required');
+            const res = await fetch('/api/crypto/coins', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, symbol }) });
+            const data = await res.json();
+            if (data.success) {
+                notifications.success('Coin added');
+                addCoinModal.style.display = 'none';
+                addCoinForm.reset();
+                loadCryptoTable();
+            } else {
+                notifications.error(data.message || 'Error adding coin');
+            }
+        };
+        // Add Network Modal logic
+        addNetworkModal.querySelector('.close-modal').onclick = () => { addNetworkModal.style.display = 'none'; };
+        addNetworkForm.querySelector('.btn-discard').onclick = () => { addNetworkModal.style.display = 'none'; };
+        addNetworkForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const coinSymbol = networkCoinSelect.value;
+            const networkName = document.getElementById('networkName').value.trim();
+            const networkAddress = document.getElementById('networkAddress').value.trim();
+            if (!coinSymbol || !networkName || !networkAddress) return notifications.error('All fields required');
+            const res = await fetch('/api/crypto/networks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ coinSymbol, networkName, address: networkAddress }) });
+            const data = await res.json();
+            if (data.success) {
+                notifications.success('Network added');
+                addNetworkModal.style.display = 'none';
+                addNetworkForm.reset();
+                loadCryptoTable();
+            } else {
+                notifications.error(data.message || 'Error adding network');
+            }
+        };
+        // Open Add Network Modal from table
+
+        document.getElementById('cryptoTable').addEventListener('click', async (e) => {
+            if (e.target.classList.contains('btn-create')) {
+                // Populate coin select
+                const coinsRes = await fetch('/api/crypto/coins');
+                const coinsData = await coinsRes.json();
+                networkCoinSelect.innerHTML = '';
+                coinsData.coins.forEach(coin => {
+                    const opt = document.createElement('option');
+                    opt.value = coin.symbol;
+                    opt.textContent = `${coin.name} (${coin.symbol})`;
+                    if (coin.symbol === e.target.dataset.coin) opt.selected = true;
+                    networkCoinSelect.appendChild(opt);
+                });
+                addNetworkModal.style.display = 'block';
+            } else if (e.target.classList.contains('btn-delete')) {
+                if (e.target.dataset.symbol) {
+                    // Delete coin
+                    if (!confirm('Delete this coin and all its networks?')) return;
+                    const res = await fetch(`/api/crypto/coins/${encodeURIComponent(e.target.dataset.symbol)}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        notifications.success('Coin deleted');
+                        loadCryptoTable();
+                    } else {
+                        notifications.error(data.message || 'Error deleting coin');
+                    }
+                } else if (e.target.dataset.networkid) {
+                    // Delete network
+                    if (!confirm('Delete this network?')) return;
+                    const res = await fetch(`/api/crypto/networks/${encodeURIComponent(e.target.dataset.networkid)}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        notifications.success('Network deleted');
+                        loadCryptoTable();
+                    } else {
+                        notifications.error(data.message || 'Error deleting network');
+                    }
+                }
+            }
+        });
+        // Initial load
+        loadCryptoTable();
+        // === End Crypto Management Panel JS ===
+
+        // === Min Order Price Panel JS ===
+        async function loadMinOrderPrice() {
+            const input = document.getElementById('minOrderPriceInput');
+            const msg = document.getElementById('minOrderPriceMsg');
+            const current = document.getElementById('minOrderPriceCurrent');
+            msg.textContent = '';
+            try {
+                const res = await fetch('/api/config/min-order-price');
+                const data = await res.json();
+                if (data.success) {
+                    input.value = data.value;
+                    current.textContent = `Current: $${parseFloat(data.value).toFixed(2)}`;
+                } else {
+                    current.textContent = '';
+                    msg.textContent = 'Error loading value';
+                }
+            } catch {
+                current.textContent = '';
+                msg.textContent = 'Error loading value';
+            }
+        }
+        document.getElementById('minOrderPriceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('minOrderPriceInput');
+            const msg = document.getElementById('minOrderPriceMsg');
+            const current = document.getElementById('minOrderPriceCurrent');
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value < 0) {
+                msg.textContent = 'Please enter a valid non-negative number.';
+                return;
+            }
+            try {
+                const res = await fetch('/api/config/min-order-price', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msg.textContent = 'Saved!';
+                    current.textContent = `Current: $${value.toFixed(2)}`;
+                    notifications.success('Minimum order price updated');
+                } else {
+                    msg.textContent = 'Error saving value';
+                    notifications.error(data.message || 'Error saving value');
+                }
+            } catch {
+                msg.textContent = 'Error saving value';
+                notifications.error('Error saving value');
+            }
+        });
+        loadMinOrderPrice();
+        // === End Min Order Price Panel JS ===
+
+        // Event delegation for dynamically created account action buttons
+        // (Edit, Ban/Unban, Delete, Manage Cart)
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            // Only trigger edit modal for account edit buttons
+            if (btn.classList.contains('btn-edit') && btn.closest('#accountsTable')) {
+                const accountId = btn.dataset.id;
+                openEditModal(accountId);
+            } else if (btn.classList.contains('btn-toggle-status')) {
+                const accountId = btn.dataset.id;
+                const status = btn.dataset.status;
+                toggleAccountStatus(accountId, status);
+            } else if (btn.classList.contains('btn-delete')) {
+                const accountId = btn.dataset.id;
+                openDeleteConfirmModal(accountId);
+            } else if (btn.classList.contains('btn-manage-cart')) {
+                const userId = btn.dataset.id;
+                const username = btn.closest('tr').children[0].textContent;
+                currentManageCartUserId = userId;
+                currentManageCartUsername = username;
+                document.getElementById('manageCartUsername').textContent = username;
+                await loadManageCart(userId);
+                document.getElementById('manageCartModal').style.display = 'block';
+            }
+        });
+
+        // Add this function to support opening the edit modal from event delegation
+        async function openEditModal(accountId) {
+            try {
+                // Set the accountId in a hidden field
+                document.getElementById('editAccountId').value = accountId;
+
+                // Find the row for this account
+                const row = [...document.querySelectorAll('#accountsList tr')]
+                    .find(tr => tr.querySelector('.btn-edit')?.dataset.id === accountId);
+
+                if (row) {
+                    document.getElementById('editEmail').value = row.children[1].textContent.trim();
+                    document.getElementById('editUsername').value = row.children[0].textContent.trim();
+                    document.getElementById('editDiscordUsername').value = row.children[2].textContent.split('(')[0].trim();
+                    document.getElementById('editDiscordId').value = (row.children[2].textContent.match(/\(([^)]+)\)/) || [])[1] || '';
+                    document.getElementById('editIsAdmin').value = row.children[4].textContent.trim() === 'Yes' ? '1' : '0';
+                }
+
+                // Show the modal
+                document.getElementById('editAccountModal').style.display = 'block';
+            } catch (error) {
+                notifications.error('Failed to open edit modal: ' + error.message);
+            }
+        }
+
+        // Add this function to close the edit modal
+        function closeEditModal() {
+            document.getElementById('editAccountModal').style.display = 'none';
+        }
+
+        // ... existing code ...
+        // Add this after the openEditModal and closeEditModal functions
+
+        document.getElementById('editAccountForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('editAccountId').value;
+            const email = document.getElementById('editEmail').value;
+            const username = document.getElementById('editUsername').value;
+            const password = document.getElementById('editPassword').value;
+            const discordUsername = document.getElementById('editDiscordUsername').value;
+            const discordId = document.getElementById('editDiscordId').value;
+            const isAdmin = parseInt(document.getElementById('editIsAdmin').value, 10);
+
+            const requestBody = {
+                email,
+                username,
+                password: password || undefined, // Only send if not blank
+                discordUsername,
+                discordId,
+                isAdmin
+            };
+
+            try {
+                const response = await fetchWithTokenRefresh(`/update-account/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    notifications.success('Account updated successfully');
+                    closeEditModal();
+        loadAccounts();
+                } else {
+                    notifications.error(data.message || 'Error updating account');
+                }
+            } catch (error) {
+                notifications.error('Error updating account. Please try again.');
+            }
+        });
+        // ... existing code ...
+
+        // ... existing code ...
+        // Add this function to close the ban reason modal and reset the form
+        function closeBanReasonModal() {
+            document.getElementById('banReasonModal').style.display = 'none';
+            document.getElementById('banReasonForm').reset();
+        }
+
+        // Ensure the X and Cancel buttons close the ban reason modal
+        // (This is handled by the event delegation for .close-modal and .btn-discard, but let's make sure)
+        document.querySelectorAll('#banReasonModal .close-modal, #banReasonModal .btn-discard').forEach(button => {
+            button.addEventListener('click', closeBanReasonModal);
+        });
+
+        // Update the ban logic to always remove the onsubmit handler after use
+        async function toggleAccountStatus(accountId, currentStatus) {
+            if (currentStatus === 'active') {
+                document.getElementById('banReasonModal').style.display = 'block';
+                const banForm = document.getElementById('banReasonForm');
+                // Remove any previous handler
+                banForm.onsubmit = null;
+                banForm.onsubmit = async function(e) {
+                    e.preventDefault();
+                    const banReason = document.getElementById('banReason').value.trim();
+                    if (!banReason) {
+                        notifications.error('Ban reason is required.');
+                        return;
+                    }
+                    try {
+                        const response = await fetchWithTokenRefresh('/update-account-status', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ accountId, status: 'banned', banReason })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            notifications.success('Account banned successfully');
+                            closeBanReasonModal();
+                            loadAccounts();
+                        } else {
+                            notifications.error(data.message || 'Error banning account');
+                        }
+                    } catch (error) {
+                        notifications.error('Error banning account. Please try again.');
+                    } finally {
+                        banForm.onsubmit = null;
+                    }
+                };
+            } else {
+                // Unban directly
+                try {
+                    const response = await fetchWithTokenRefresh('/update-account-status', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ accountId, status: 'active', banReason: '' })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        notifications.success('Account unbanned successfully');
+                        loadAccounts();
+                    } else {
+                        notifications.error(data.message || 'Error unbanning account');
+                    }
+                } catch (error) {
+                    notifications.error('Error unbanning account. Please try again.');
+                }
+            }
+        }
+        // ... existing code ...
+
+        // Cart Management Variables
+        let currentManageCartUserId = null;
+        let currentManageCartUsername = null;
+        let allOffers = [];
+
+        // Fetch all offers for the add form
+        async function fetchAllOffers() {
+            const res = await fetchWithTokenRefresh('/offers');
+            const data = await res.json();
+            if (data.success) {
+                allOffers = data.offers;
+                return allOffers;
+            }
+            return [];
+        }
+
+        // Populate offer and server selects
+        function populateOfferSelect() {
+            const offerSelect = document.getElementById('offerSelect');
+            offerSelect.innerHTML = '<option value="">Select Offer</option>';
+            allOffers.forEach(offer => {
+                offerSelect.innerHTML += `<option value="${offer.id}" data-offer='${JSON.stringify(offer)}'>${offer.header}</option>`;
+            });
+        }
+
+        function populateServerSelect(offer) {
+            const serverSelect = document.getElementById('serverSelect');
+            serverSelect.innerHTML = '';
+            if (!offer || !offer.available_servers) return;
+            const servers = offer.available_servers.split(',').map(s => s.trim()).filter(Boolean);
+            servers.forEach(server => {
+                serverSelect.innerHTML += `<option value="${server}">${server}</option>`;
+            });
+        }
+
+        // Update quantity input min/max
+        function updateQuantityInput(offer) {
+            const qtyInput = document.getElementById('offerQuantityInput');
+            if (!offer) {
+                qtyInput.min = 1;
+                qtyInput.max = 999;
+                qtyInput.value = 1;
+                return;
+            }
+            qtyInput.min = offer.min_quantity;
+            qtyInput.max = offer.available_quantity;
+            qtyInput.value = offer.min_quantity;
+        }
+
+        // Add event listeners for offer/server selects
+        const offerSelect = document.getElementById('offerSelect');
+        offerSelect.addEventListener('change', function() {
+            const offer = allOffers.find(o => o.id == this.value);
+            populateServerSelect(offer);
+            updateQuantityInput(offer);
+        });
+
+        document.getElementById('serverSelect').addEventListener('change', function() {
+            // Optionally update quantity info if needed
+        });
+
+        // Add Offer to Cart form submit
+        const addOfferToCartForm = document.getElementById('addOfferToCartForm');
+        addOfferToCartForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const offerId = offerSelect.value;
+            const offer = allOffers.find(o => o.id == offerId);
+            const serverName = document.getElementById('serverSelect').value;
+            const quantity = parseInt(document.getElementById('offerQuantityInput').value);
+            if (!offer || !serverName || !quantity) return;
+            // Enforce min/max
+            if (quantity < offer.min_quantity || quantity > offer.available_quantity) {
+                notifications.error(`Quantity must be between ${offer.min_quantity} and ${offer.available_quantity}`);
+                return;
+            }
+            // Add to cart via admin endpoint
+            try {
+                const response = await fetchWithTokenRefresh(`/admin/cart/${currentManageCartUserId}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        offerId: offer.id,
+                        offerType: offer.offer_type,
+                        offerName: offer.header,
+                        serverName,
+                        quantity,
+                        pricePerAccount: offer.price_per_acc,
+                        gmailToBeSent: null
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    notifications.success('Offer added to cart');
+                    await loadManageCart(currentManageCartUserId);
+                } else {
+                    notifications.error(data.message || 'Error adding offer to cart');
+                }
+            } catch (error) {
+                notifications.error('Error adding offer to cart');
+            }
+        });
+
+        // Function to load and display user's cart (updated for inc/dec)
+        async function loadManageCart(userId) {
+            try {
+                const response = await fetchWithTokenRefresh(`/admin/cart/${userId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    const cartItemsContainer = document.getElementById('userCartItems');
+                    cartItemsContainer.innerHTML = '';
+                    
+                    if (!data.cart.items || data.cart.items.length === 0) {
+                        cartItemsContainer.innerHTML = '<p>No items in cart</p>';
+                        document.getElementById('cartTotal').textContent = '$0.00';
+                        return;
+                    }
+                    
+                    // Group items by server
+                    const serverGroups = {};
+                    data.cart.items.forEach(item => {
+                        if (!serverGroups[item.server_name]) {
+                            serverGroups[item.server_name] = [];
+                        }
+                        serverGroups[item.server_name].push(item);
+                    });
+                    
+                    // Create cart items HTML
+                    Object.entries(serverGroups).forEach(([server, items]) => {
+                        const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+                        const totalPrice = items.reduce((sum, item) => sum + (item.quantity * item.price_per_account), 0);
+                        const minQuantity = items[0].min_quantity || 1;
+                        const availableQuantity = items[0].available_quantity || 999;
+                        const itemId = items[0].item_id;
+                        
+                        const div = document.createElement('div');
+                        div.className = 'cart-item';
+                        div.innerHTML = `
+                            <div class="cart-item-details">
+                                <div class="cart-item-title">${items[0].offer_name}</div>
+                                <div class="cart-item-info">
+                                    <span class="cart-tag">${server}</span>
+                                    <span class="cart-tag">${totalQuantity}x</span>
+                                    <span>$${totalPrice.toFixed(2)}</span>
+                                </div>
+                                <div class="cart-item-actions">
+                                    <button class="btn-qty-dec" data-itemid="${itemId}" ${totalQuantity <= minQuantity ? 'disabled' : ''}>-</button>
+                                    <span style="margin:0 0.5em;">${totalQuantity}</span>
+                                    <button class="btn-qty-inc" data-itemid="${itemId}" ${totalQuantity >= availableQuantity ? 'disabled' : ''}>+</button>
+                                    <button class="btn-remove-cart-item" data-server="${server}">Remove</button>
+                                </div>
+                            </div>
+                        `;
+                        cartItemsContainer.appendChild(div);
+                    });
+                    
+                    // Update total
+                    document.getElementById('cartTotal').textContent = `$${data.total.toFixed(2)}`;
+                    
+                    // Add event listeners for remove buttons
+                    document.querySelectorAll('.btn-remove-cart-item').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const server = this.dataset.server;
+                            if (confirm(`Remove all items for server ${server} from the cart?`)) {
+                                try {
+                                    const response = await fetchWithTokenRefresh(`/admin/cart/${currentManageCartUserId}/remove/${encodeURIComponent(server)}`, {
+                                        method: 'DELETE'
+                                    });
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        notifications.success('Items removed from cart');
+                                        await loadManageCart(currentManageCartUserId);
+                                    } else {
+                                        notifications.error(data.message || 'Error removing items');
+                                    }
+                                } catch (error) {
+                                    notifications.error('Error removing items from cart');
+                                }
+                            }
+                        });
+                    });
+                    // Add event listeners for quantity inc/dec
+                    document.querySelectorAll('.btn-qty-inc').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const itemId = this.dataset.itemid;
+                            const item = data.cart.items.find(i => i.item_id == itemId);
+                            if (!item) return;
+                            const newQty = item.quantity + 1;
+                            if (newQty > (item.available_quantity || 999)) return;
+                            await updateCartItemQuantity(itemId, newQty);
+                        });
+                    });
+                    document.querySelectorAll('.btn-qty-dec').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const itemId = this.dataset.itemid;
+                            const item = data.cart.items.find(i => i.item_id == itemId);
+                            if (!item) return;
+                            const newQty = item.quantity - 1;
+                            if (newQty < (item.min_quantity || 1)) return;
+                            await updateCartItemQuantity(itemId, newQty);
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                notifications.error('Error loading cart details');
+            }
+        }
+
+        // Update cart item quantity (admin)
+        async function updateCartItemQuantity(itemId, quantity) {
+            try {
+                const response = await fetchWithTokenRefresh(`/admin/cart/${currentManageCartUserId}/item/${itemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    await loadManageCart(currentManageCartUserId);
+                } else {
+                    notifications.error(data.message || 'Error updating quantity');
+                }
+            } catch (error) {
+                notifications.error('Error updating quantity');
+            }
+        }
+
+        // Function to close cart management modal
+        function closeManageCartModal() {
+            document.getElementById('manageCartModal').style.display = 'none';
+            currentManageCartUserId = null;
+            currentManageCartUsername = null;
+        }
+
+        // Add event listeners for the cart management modal
+        document.querySelector('#manageCartModal .close-modal').addEventListener('click', closeManageCartModal);
+        document.querySelector('#manageCartModal .btn-discard').addEventListener('click', closeManageCartModal);
+
+        // Update window click handler to include cart management modal
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                if (event.target.id === 'manageCartModal') {
+                    closeManageCartModal();
+                }
+                // ... existing modal close handlers ...
+            }
+        });
+
+        // When opening the modal, fetch offers and populate form
+        async function openManageCartModal(userId, username) {
+            currentManageCartUserId = userId;
+            currentManageCartUsername = username;
+            document.getElementById('manageCartUsername').textContent = username;
+            await fetchAllOffers();
+            populateOfferSelect();
+            document.getElementById('manageCartModal').style.display = 'block';
+            await loadManageCart(userId);
+        }
+
+        // Update event delegation for Manage Cart button
+        // ... existing code ...
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            if (btn.classList.contains('btn-manage-cart')) {
+                const userId = btn.dataset.id;
+                const username = btn.closest('tr').children[0].textContent;
+                await openManageCartModal(userId, username);
+            }
+            // ... existing code ...
+        });
+        // ... existing code ...
+
+        // Purchases Panel Logic (inline)
+        const purchasesTableBody = document.querySelector('#purchasesTable tbody');
+        const purchaseDetailsPanel = document.getElementById('purchaseDetailsPanel'); // (Remove or ignore this panel)
+        let allPurchases = [];
+
+        // Load all purchases on page load
+        loadPurchases();
+
+        async function loadPurchases() {
+          purchasesTableBody.innerHTML = '<tr><td colspan="8">No confirmed purchases found</td></tr>';
+          try {
+            const res = await fetchWithTokenRefresh('/admin/purchases');
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message);
+            allPurchases = data.purchases;
+            renderPurchasesTable();
+          } catch (e) {
+            purchasesTableBody.innerHTML = `<tr><td colspan="8">Error loading purchases</td></tr>`;
+          }
+        }
+        function renderPurchasesTable() {
+          purchasesTableBody.innerHTML = '';
+          // Only show purchases where payment_confirmation === 'confirmed'
+          const confirmedPurchases = allPurchases.filter(p => p.payment_confirmation === 'confirmed');
+          if (!confirmedPurchases.length) {
+            purchasesTableBody.innerHTML = '<tr><td colspan="8">No confirmed purchases found</td></tr>';
+            return;
+          }
+          for (const p of confirmedPurchases) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>#${p.id}</td>
+              <td>${p.user_email}</td>
+              <td>${p.gmail_to_be_sent ? `<span style='font-family:monospace;'>${p.gmail_to_be_sent}</span>` : '-'}</td>
+              <td>${new Date(p.created_at).toLocaleString()}</td>
+              <td>${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</td>
+              <td>${p.payment_confirmation.charAt(0).toUpperCase() + p.payment_confirmation.slice(1)}</td>
+              <td>$${p.subtotal_after_coupon.toFixed(2)}</td>
+              <td><button class="btn-view-purchase" data-id="${p.id}">View</button></td>
+            `;
+            purchasesTableBody.appendChild(tr);
+          }
+          // Add event listeners for view buttons
+          purchasesTableBody.querySelectorAll('.btn-view-purchase').forEach(btn => {
+            btn.addEventListener('click', function() {
+              openPurchaseDetailsModal(this.dataset.id);
+            });
+          });
+        }
+        // ... existing code ...
+        // Update table header to include Gmail to be Sent
+        document.querySelector('#purchasesTable thead tr').innerHTML = `
+          <th>Order #</th>
+          <th>User</th>
+          <th>Gmail to be Sent</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Payment Confirmation</th>
+          <th>Total</th>
+          <th>Actions</th>
+        `;
+        // ... existing code ...
+
+        // New: Render purchase details in modal
+        function openPurchaseDetailsModal(purchaseId) {
+          const p = allPurchases.find(p => p.id == purchaseId);
+          if (!p || p.payment_confirmation !== 'confirmed') return;
+          let html = '';
+          html += `<div>`;
+          html += `<div><b>Purchase ID:</b> #${p.id}</div>`;
+          html += `<div><b>Date:</b> ${new Date(p.created_at).toLocaleString()}</div>`;
+          html += `<div><b>User:</b> ${p.user_email}</div>`;
+          if (p.gmail_to_be_sent) {
+            html += `<div><b>Gmail to be Sent:</b> <span style='font-family:monospace;'>${p.gmail_to_be_sent}</span></div>`;
+          }
+          html += `<div><b>Status:</b> <span id='adminPurchaseStatus'>${p.status.charAt(0).toUpperCase() + p.status.slice(1)}</span></div>`;
+          html += `<div><b>Payment Confirmation:</b> <span id='adminPaymentConfirmation'>${p.payment_confirmation.charAt(0).toUpperCase() + p.payment_confirmation.slice(1)}</span></div>`;
+          html += `<div><b>Items:</b><ul>`;
+          for (const item of p.items) {
+            html += `<li>${item.offer_name} (${item.server_name}) x${item.quantity} @ $${item.price_per_account.toFixed(2)} = $${(item.price_per_account * item.quantity).toFixed(2)}</li>`;
+          }
+          html += `</ul></div>`;
+          html += `<div><b>Total before coupon:</b> $${p.total_before_coupon.toFixed(2)}</div>`;
+          if (p.coupon_code) {
+            html += `<div><b>Coupon:</b> ${p.coupon_code} (${p.coupon_percent}%)</div>`;
+            html += `<div><b>Discount:</b> -$${(p.total_before_coupon - p.subtotal_after_coupon).toFixed(2)}</div>`;
+          }
+          html += `<div><b>Total to Pay:</b> $${p.subtotal_after_coupon.toFixed(2)}</div>`;
+          html += `<div><b>Payment Methods:</b><ul>`;
+          for (const net of p.payment_networks) {
+            html += `<li><b>${net.network}:</b> <span style='word-break:break-all;font-family:monospace;'>${net.address}</span></li>`;
+          }
+          html += `</ul></div>`;
+          html += `<div style='margin-top:18px;'>`;
+          html += `<button class='btn-confirm-purchase' data-id='${p.id}'>Confirm</button> `;
+          html += `<button class='btn-decline-purchase' data-id='${p.id}'>Decline</button>`;
+          html += `</div>`;
+          html += `</div>`;
+          purchaseDetailsPanel.innerHTML = html;
+          purchaseDetailsPanel.style.display = 'block';
+          // Add event listeners for confirm/decline (CSP safe)
+          const confirmBtn = document.querySelector('.btn-confirm-purchase');
+          const declineBtn = document.querySelector('.btn-decline-purchase');
+          if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => updatePurchaseStatus(confirmBtn.dataset.id, 'confirmed'));
+          }
+          if (declineBtn) {
+            declineBtn.addEventListener('click', () => updatePurchaseStatus(declineBtn.dataset.id, 'declined'));
+          }
+        }
+        // Update purchase status
+        async function updatePurchaseStatus(purchaseId, status) {
+          try {
+            const res = await fetchWithTokenRefresh(`/purchase/${purchaseId}/status`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status })
+            });
+            if (res.ok) {
+              // Refresh purchases and details
+              await loadPurchases();
+              document.getElementById('purchaseDetailsModal').style.display = 'none'; // Close modal after update
+              notifications.success('Purchase status updated');
+            } else {
+              notifications.error('Failed to update status');
+            }
+          } catch {
+            notifications.error('Failed to update status');
+          }
+        }
+        // ... existing code ...
+
+        // Modal close logic
+        const closePurchaseDetailsModal = document.getElementById('closePurchaseDetailsModal');
+        const closePurchaseDetailsBtn = document.getElementById('closePurchaseDetailsBtn');
+        [closePurchaseDetailsModal, closePurchaseDetailsBtn].forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.getElementById('purchaseDetailsModal').style.display = 'none';
+          });
+        });
+        // ... existing code ...
+    </script>
+</body>
+</html> 
+
