@@ -2761,7 +2761,7 @@
                 if (event.target.id === 'manageCartModal') {
                     closeManageCartModal();
                 }
-                // ... existing modal close handlers ...
+                
             }
         });
 
@@ -2777,7 +2777,7 @@
         }
 
         // Update event delegation for Manage Cart button
-        // ... existing code ...
+        
         document.addEventListener('click', async function(e) {
             const btn = e.target.closest('button');
             if (!btn) return;
@@ -2786,9 +2786,9 @@
                 const username = btn.closest('tr').children[0].textContent;
                 await openManageCartModal(userId, username);
             }
-            // ... existing code ...
+            
         });
-        // ... existing code ...
+        
 
         // Purchases Panel Logic (inline)
         const purchasesTableBody = document.querySelector('#purchasesTable tbody');
@@ -2839,7 +2839,7 @@
             });
           });
         }
-        // ... existing code ...
+        
         // Update table header to include Gmail to be Sent
         document.querySelector('#purchasesTable thead tr').innerHTML = `
           <th>Order #</th>
@@ -2851,7 +2851,7 @@
           <th>Total</th>
           <th>Actions</th>
         `;
-        // ... existing code ...
+        
 
         // New: Render purchase details in modal
         function openPurchaseDetailsModal(purchaseId) {
@@ -2920,9 +2920,9 @@
             notifications.error('Failed to update status');
           }
         }
-        // ... existing code ...
+        
 
-        // Modal close logic
+        
         const closePurchaseDetailsModal = document.getElementById('closePurchaseDetailsModal');
         const closePurchaseDetailsBtn = document.getElementById('closePurchaseDetailsBtn');
         [closePurchaseDetailsModal, closePurchaseDetailsBtn].forEach(btn => {
@@ -2930,7 +2930,7 @@
             document.getElementById('purchaseDetailsModal').style.display = 'none';
           });
         });
-        // ... existing code ...
+        
     </script>
 </body>
 </html> 
